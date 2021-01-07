@@ -10,6 +10,8 @@ import javax.swing.border.EmptyBorder;
 import WorkPaySystem.dbconn;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
@@ -95,18 +97,26 @@ public class NewWorker extends JFrame {
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
+//					String sname=name.getText().toString() ,dname;
 					dbconn conn = new dbconn();
-//					System.out.println();
 					int n = comboBox.getSelectedIndex()+1;
-					conn.getStmt().executeUpdate("Insert into workersdetail (id,name,age,type,totalrup) value (null,'"+name.getText()+"','"+age.getText()+"','"+n+"',0)");
-					dispose();
-					new Mainframe();
+					ResultSet rst = conn.getStmt().executeQuery("select id from workersdetail where name ='"+name.getText()+"'");
+					if(rst.next()) {
+						JOptionPane.showMessageDialog(null, "User allready exist", "Dialog",
+						        JOptionPane.ERROR_MESSAGE);
+					}else {
+						conn.getStmt().executeUpdate("Insert into workersdetail (id,name,age,type,totalrup) value (null,'"+name.getText()+"','"+age.getText()+"','"+n+"',0)");
+						Mainframe fm = new Mainframe();
+						dispose();
+					}
+					
 				}catch(Exception e) {
 					System.out.println(e);
 				}
+				
 			}
 		});
-		btnAdd.setBounds(222, 244, 112, 41);
+		btnAdd.setBounds(202, 244, 112, 41);
 		contentPane.add(btnAdd);
 		
 		JLabel lblAddNewWorker = new JLabel("Add New Worker");
@@ -114,5 +124,15 @@ public class NewWorker extends JFrame {
 		lblAddNewWorker.setHorizontalAlignment(SwingConstants.CENTER);
 		lblAddNewWorker.setBounds(111, 31, 223, 29);
 		contentPane.add(lblAddNewWorker);
+		
+		JButton btnCanel = new JButton("Cancel");
+		btnCanel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Mainframe mn = new Mainframe();
+				dispose();
+			}
+		});
+		btnCanel.setBounds(324, 244, 112, 41);
+		contentPane.add(btnCanel);
 	}
 }

@@ -32,7 +32,8 @@ public class NewWork extends JFrame {
 	private JTextField textField_5;
 	private JTable table;
 	private static int id;
-	float total;
+	int co = 0;
+	float total,totalAmount;
 	String s="";
 	DefaultTableModel model;
 	
@@ -164,7 +165,8 @@ public class NewWork extends JFrame {
 			dbconn conn = new dbconn();
 			ResultSet rs = conn.getStmt().executeQuery("SELECT wid,date,m.typename,Piece,Rate,Rupee from workdetail s join worktype m on s.type = m.wtid where wksId='"+id+"'");
 			while(rs.next()) {
-				row[0] = rs.getInt("wid");
+//				row[0] = rs.getInt("wid");
+				row[0] = co+1;
 				row[1] = rs.getDate("date");
 				row[2] = rs.getString("typename");
 				row[3] = rs.getInt("piece");
@@ -183,12 +185,14 @@ public class NewWork extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					dbconn conn = new dbconn();
-					ResultSet rst = conn.getStmt().executeQuery("select totalrup from workersdetail where id = '"+id+"'");
+					ResultSet rst = conn.getStmt().executeQuery("select sum(rupee) from workdetail where wksid = '"+id+"'");
 					if(rst.next()) {
-						total = rst.getFloat("totalrup");
+						totalAmount = rst.getFloat("sum(rupee)");
+//						System.out.println(rst.getFloat("sum(rupee)")+"  sjcjscj");
 					}
 					total = total +( Float.parseFloat(textField_3.getText()) * Float.parseFloat(textField_4.getText())) ;
 					textField_5.setText(s+total);
+					totalAmount += total;
 				}catch(Exception e) {
 					System.out.println(e);
 				}
@@ -199,8 +203,45 @@ public class NewWork extends JFrame {
 		contentPane.add(btnCalculate);
 		
 		JButton btnAdd = new JButton("Add");
+		btnAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String sdate = txtYyyymmdd.getText().toString();
+					int a = comboBox.getSelectedIndex()+1;
+					int b = Integer.parseInt(textField_3.getText());
+					float x = Float.parseFloat(textField_4.getText());
+					float y = Float.parseFloat(textField_5.getText());
+					dbconn conn = new dbconn();
+					conn.getStmt().executeUpdate("insert into workdetail (wid,wksid,date,type,piece,rate,rupee) value (null,'"+id+"','"+sdate+"','"+a+"','"+b+"','"+x+"','"+y+"')");
+					conn.getStmt().executeUpdate("update workersdetail set totalrup = '"+totalAmount+"' where id = '"+id+"'");
+					row[0]= co + 1;
+					row[1] = sdate;
+					row[2] = comboBox.getSelectedItem();
+					row[3] = b;
+					row[4] = x;
+					row[5] = y;
+					model.addRow(row);
+					
+					txtYyyymmdd.setText("YYYY-MM-DD");
+					textField_3.setText("");
+					textField_4.setText("");
+					textField_5.setText("");
+				}catch(Exception ex) {
+					System.out.println(ex);
+				}
+			}
+		});
 		btnAdd.setBounds(228, 189, 89, 23);
 		contentPane.add(btnAdd);
+		
+		JButton btnNewButton = new JButton("Back");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Mainframe mn = new Mainframe();
+				dispose();
+			}
+		});
+		btnNewButton.setBounds(337, 189, 89, 23);
+		contentPane.add(btnNewButton);
 	}
-
 }
