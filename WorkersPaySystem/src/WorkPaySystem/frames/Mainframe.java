@@ -13,12 +13,16 @@ import WorkPaySystem.dbconn;
 import java.awt.Color;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Mainframe {
 
 	private JFrame frame;
 	private JTable table;
 	DefaultTableModel model;
+	JComboBox<String> comboBox;
+	
 
 	/**
 	 * Launch the application.
@@ -53,10 +57,35 @@ public class Mainframe {
 		frame.getContentPane().setLayout(null);
 		
 		JButton btnAddWorker = new JButton("Add Worker");
+		btnAddWorker.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				NewWorker nw = new NewWorker();
+				nw.setVisible(true);
+				frame.dispose();
+			}
+		});
 		btnAddWorker.setBounds(55, 29, 103, 23);
 		frame.getContentPane().add(btnAddWorker);
 		
 		JButton btnShow = new JButton("Show");
+		btnShow.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					dbconn conn = new dbconn();
+					ResultSet rst = conn.getStmt().executeQuery("select * from workersdetail where name = '"+comboBox.getSelectedItem().toString()+"'");
+					if(rst.next()) {
+//						System.out.println(rst.getInt("id")+" "+rst.getString("name"));
+						int wid = rst.getInt("id");
+						NewWork nwk = new NewWork(wid);
+					}
+
+				}catch(Exception e) {
+					System.out.println(e+"vjhvjj");
+				}
+				frame.dispose();
+				
+			}
+		});
 		btnShow.setBounds(303, 29, 89, 23);
 		frame.getContentPane().add(btnShow);
 		
@@ -79,8 +108,8 @@ public class Mainframe {
 				row[1] = rs.getString("name");
 				row[2] = rs.getInt("age");
 				row[3] = rs.getString("typename");
-				row[4] = rs.getInt("totalrup");
-				System.out.println(row[4]);
+				row[4] = rs.getFloat("totalrup");
+//				System.out.println(row[4]);
 				model.addRow(row);
 			}
 		}catch(Exception e) {
@@ -88,8 +117,18 @@ public class Mainframe {
 		}
 		scrollPane.setViewportView(table);
 		
-		JComboBox comboBox = new JComboBox();
+		comboBox = new JComboBox<>();
 		comboBox.setBounds(190, 30, 103, 20);
+		try {
+			dbconn conn = new dbconn();
+			ResultSet rst = conn.getStmt().executeQuery("select * from workersdetail");
+			while(rst.next()) {
+				comboBox.addItem(rst.getString("name"));
+			}
+
+		}catch(Exception e) {
+			System.out.println(e);
+		}
 		frame.getContentPane().add(comboBox);
 	}
 }
