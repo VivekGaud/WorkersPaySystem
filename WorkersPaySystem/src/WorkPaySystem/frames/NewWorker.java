@@ -47,6 +47,7 @@ public class NewWorker extends JFrame {
 	 * Create the frame.
 	 */
 	public NewWorker() {
+		setTitle("Workers Pay System");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 467, 374);
 		contentPane = new JPanel();

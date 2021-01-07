@@ -32,7 +32,7 @@ public class NewWork extends JFrame {
 	private JTextField textField_5;
 	private JTable table;
 	private static int id;
-	int co = 0;
+	int co = 1;
 	float total,totalAmount;
 	String s="";
 	DefaultTableModel model;
@@ -59,6 +59,7 @@ public class NewWork extends JFrame {
 	 * Create the frame.
 	 */
 	public NewWork(int id) {
+		setTitle("Workers Pay System");
 		this.id = id;
 		this.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -104,9 +105,10 @@ public class NewWork extends JFrame {
 		textField.setColumns(10);
 		textField.setEditable(false);
 		
+		//Set Name textfield
 		try {
 			dbconn conn = new dbconn();
-			ResultSet rs = conn.getStmt().executeQuery("select * from workersdetail where id = '"+id+"'");
+			ResultSet rs = conn.getStmt().executeQuery("select name from workersdetail where id = '"+id+"'");
 			if(rs.next()) {
 				textField.setText(rs.getString("name"));
 			}
@@ -115,22 +117,26 @@ public class NewWork extends JFrame {
 			System.out.println(e);
 		}
 		
+		//Date
 		txtYyyymmdd = new JTextField();
 		txtYyyymmdd.setText("YYYY-MM-DD");
 		txtYyyymmdd.setColumns(10);
 		txtYyyymmdd.setBounds(218, 49, 142, 20);
 		contentPane.add(txtYyyymmdd);
 		
+		//Piece
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
 		textField_3.setBounds(218, 99, 142, 20);
 		contentPane.add(textField_3);
 		
+		//Rate
 		textField_4 = new JTextField();
 		textField_4.setColumns(10);
 		textField_4.setBounds(218, 124, 142, 20);
 		contentPane.add(textField_4);
 		
+		//Ruppes
 		textField_5 = new JTextField();
 		textField_5.setColumns(10);
 		textField_5.setBounds(218, 149, 109, 20);
@@ -165,14 +171,12 @@ public class NewWork extends JFrame {
 			dbconn conn = new dbconn();
 			ResultSet rs = conn.getStmt().executeQuery("SELECT wid,date,m.typename,Piece,Rate,Rupee from workdetail s join worktype m on s.type = m.wtid where wksId='"+id+"'");
 			while(rs.next()) {
-//				row[0] = rs.getInt("wid");
-				row[0] = co+1;
+				row[0] = co++;
 				row[1] = rs.getDate("date");
 				row[2] = rs.getString("typename");
 				row[3] = rs.getInt("piece");
 				row[4] = rs.getFloat("rate");
 				row[5] = rs.getFloat("rupee");
-//				System.out.println(row[4]);
 				model.addRow(row);
 			}
 		}catch(Exception e) {
@@ -188,11 +192,10 @@ public class NewWork extends JFrame {
 					ResultSet rst = conn.getStmt().executeQuery("select sum(rupee) from workdetail where wksid = '"+id+"'");
 					if(rst.next()) {
 						totalAmount = rst.getFloat("sum(rupee)");
-//						System.out.println(rst.getFloat("sum(rupee)")+"  sjcjscj");
 					}
 					total = total +( Float.parseFloat(textField_3.getText()) * Float.parseFloat(textField_4.getText())) ;
 					textField_5.setText(s+total);
-					totalAmount += total;
+					totalAmount += total; 
 				}catch(Exception e) {
 					System.out.println(e);
 				}
@@ -214,7 +217,7 @@ public class NewWork extends JFrame {
 					dbconn conn = new dbconn();
 					conn.getStmt().executeUpdate("insert into workdetail (wid,wksid,date,type,piece,rate,rupee) value (null,'"+id+"','"+sdate+"','"+a+"','"+b+"','"+x+"','"+y+"')");
 					conn.getStmt().executeUpdate("update workersdetail set totalrup = '"+totalAmount+"' where id = '"+id+"'");
-					row[0]= co + 1;
+					row[0]= co++;
 					row[1] = sdate;
 					row[2] = comboBox.getSelectedItem();
 					row[3] = b;
